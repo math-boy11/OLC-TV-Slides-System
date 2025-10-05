@@ -1,6 +1,6 @@
 const slide = $("#slide");
 const overlayContainer = $("#overlay-container");
-const slideChangeIntervalDuration = 5000;
+const slideChangeIntervalDuration = 10000;
 let slideChangeInterval = null;
 let currentSlideIndex = 0;
 let slidesData = null;
