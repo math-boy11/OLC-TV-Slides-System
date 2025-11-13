@@ -6,7 +6,7 @@ let currentSlideIndex = 0;
 let slidesData = null;
 let calendarData = null;
 let scale = null;
-const enableAutoRefresh = true;
+const enableAutoRefresh = false;
 const customOverlays = {};
 
 // Get the Google Slides data from the server
