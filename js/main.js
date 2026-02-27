@@ -1,6 +1,7 @@
+const slideChangeIntervalDuration = 10000;
+const apiEndpoint = "https://script.google.com/macros/s/AKfycbzGiG4PXzJbdYSFdbK0OyTA6L1CUH-Dyhd6Iw_rlF_B2vAiCBUu5Ip2v43gy4P1aKkC-w/exec";
 const slide = $("#slide");
 const overlayContainer = $("#overlay-container");
-const slideChangeIntervalDuration = 10000;
 let slideChangeInterval = null;
 let currentSlideIndex = 0;
 let slidesData = null;
@@ -9,9 +10,9 @@ let scale = null;
 const enableAutoRefresh = false;
 const customOverlays = {};
 
-// Get the Google Slides data from the server
+// Get the slides data from the server
 $.ajax({
-    url: "https://script.google.com/macros/s/AKfycbzGiG4PXzJbdYSFdbK0OyTA6L1CUH-Dyhd6Iw_rlF_B2vAiCBUu5Ip2v43gy4P1aKkC-w/exec",
+    url: apiEndpoint,
     type: "POST",
     dataType: "json",
 }).done((data) => {
@@ -25,11 +26,12 @@ $.ajax({
 
     // Adjust the slide dimensions to fill the screen
     resize();
+    $(window).resize(resize);
+    
+    // Draw the first slide
     drawSlide();
 
-    $(window).resize(resize);
-
-    // Interval to change the slide
+    // Create the interval to change the slide
     slideChangeInterval = setInterval(() => {
         // Loop back to the first slide if we are currently on the last slide
         if (slidesData.slides.length - 1 === currentSlideIndex) {
@@ -118,7 +120,7 @@ function resize() {
     }
 }
 
-// Auto-Refresh logic
+// Auto-refresh logic
 if (enableAutoRefresh === true) {
     const now = new Date();
     const reloadTime = new Date();
