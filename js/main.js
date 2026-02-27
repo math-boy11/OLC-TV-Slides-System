@@ -1,14 +1,16 @@
-const slideChangeIntervalDuration = 10000;
+// Config options
 const apiEndpoint = "https://script.google.com/macros/s/AKfycbzGiG4PXzJbdYSFdbK0OyTA6L1CUH-Dyhd6Iw_rlF_B2vAiCBUu5Ip2v43gy4P1aKkC-w/exec";
+const slideChangeIntervalDuration = 10000;
+const enableAutoRefresh = true;
+const customOverlays = {};
+
+// Global variables
 const slide = $("#slide");
 const overlayContainer = $("#overlay-container");
 let slideChangeInterval = null;
 let currentSlideIndex = 0;
 let slidesData = null;
-let calendarData = null;
 let scale = null;
-const enableAutoRefresh = false;
-const customOverlays = {};
 
 // Get the slides data from the server
 $.ajax({
@@ -22,7 +24,6 @@ $.ajax({
 
     // Assign the data as global variables
     slidesData = data.slidesData;
-    calendarData = data.calendarData;
 
     // Adjust the slide dimensions to fill the screen
     resize();
@@ -56,21 +57,16 @@ function drawSlide() {
     if (customOverlays[currentSlideIndex] != null) {
         for (const [overlayIndex, overlay] of customOverlays[currentSlideIndex].entries()) {
             let overlayElement = null;
-            let calendar = null;
 
             // Initial setup of the overlay elements
             if (overlay.type === "image") {
-                // Draw an image overlay (useful for images that can't be exported as SVG, like GIFs)
+                // Draw an image overlay (useful for animated images that can't be exported to SVG, like GIFs)
                 overlayElement = $("<img>");
                 overlayElement.attr("src", overlay.url);
             } else if (overlay.type === "embed") {
                 // Draw an HTML embed
                 overlayElement = $("<iframe frameborder='0'></iframe>");
                 overlayElement.attr("src", overlay.url);
-            } else if (overlay.type === "calendar") {
-                // Draw a calendar
-                overlayElement = $("<div>");
-                calendar = createCalendar(overlayElement[0], calendarData[overlay.calendar], overlay.eventColor);
             }
             
             overlayElement.width(overlay.width * scale);
@@ -83,11 +79,6 @@ function drawSlide() {
             overlayElement.attr("data-overlay-number", overlayIndex);
 
             overlayContainer.append(overlayElement);
-
-            // Additional setup of the overlay elements after they're drawn
-            if (overlay.type === "calendar") {
-                calendar.render();
-            }
         }
     }
 }
@@ -132,7 +123,7 @@ if (enableAutoRefresh === true) {
     // Calculate the time difference
     const timeToReload = reloadTime - now;
 
-    console.log("Page will reload in " + timeToReload / 1000 + " seconds.");
+    console.log(`Page will reload in ${timeToReload / 1000} seconds.`);
 
     // Create the timeout to reload the page
     setTimeout(() => {
