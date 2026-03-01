@@ -3,49 +3,67 @@ This is the repository for the TV Slides system designed for Oakridge Lutheran C
 
 - [OLC TV Slides System](#olc-tv-slides-system)
   - [How it works](#how-it-works)
+  - [API](#api)
   - [Customization](#customization)
-  - [Calendars](#calendars)
-  - [Auto refresh](#auto-refresh)
   - [Running the app](#running-the-app)
 
 ## How it works
-This program is designed to overlay custom elements on top of an existing Google Slides presentation. It works by using a [Google Apps Script](https://developers.google.com/apps-script) project to connect to the internal OLC Google Workspace resources. The script converts the slides, calendar data, etc. into a format that the main program can understand. This makes the program seperate from any internal OLC content. You can even use something different from Google Slides/Calendar entirely, since it's not tied to any particular system. The program takes the individual slides as SVGs and displays them in a loop. Then you can add your own elements to any of the slides that aren't nativley supported by Google Slides (such as HTML embeds or live calendars) or elements that won't converted properly (such as videos, GIFs, or any moving object). The code is designed to make it super simple to implement as many custom elements as you want, and you can add new types of custom elements really easilly.
+This program is designed to overlay custom elements on top of an existing slideshow. It works by using an external API to fetch the slides and convert them into a format this program can work with. This keeps things seperate from any internal resources, so you can build your own API and use whatever content management system you want. This program takes the individual slides from the API and displays them in a loop. Then you can add your own custom elements (currently only images and embeds are supported) to any of the slides, allowing you to use elements that aren't nativley supported by your content management system (such as HTML embeds) or elements that won't be converted properly (such as videos, GIFs, or any moving object). The code is designed to make it super simple to implement as many custom elements as you want, and you can add new types of custom elements really easilly.
+
+## API
+This program gets the slides data with an HTTP GET request to the configured API endpoint. The response must be JSON in the following format:
+
+```
+{
+    "width": number,
+    "height": number,
+    "slides": string[]
+}
+```
+
+The ```width``` and ```height``` fields are the dimensions of the slides in pixels, and are used for scaling the slides and their custom elements. The ```slides``` field is an array of image URL strings for the slides. SVGs are recommended since they can scale without quality loss, but any standard raster image format (PNG, JPEG, etc.) is also supported.
 
 ## Customization
-You can customize all the key aspects of this program easilly. To adjust the interval between the slide changes, just use the ```slideChangeIntervalDuration``` global variable in ```main.js```. To change the url where the slides and calendar data is stored, just change the url in the AJAX request in ```main.js```. To add custom elements, you can customize the ```customOverlays``` global object to add anything you want in this format:
+This program is designed to be very customizable. All configuration options are at the top of the ```main.js``` file. To add custom elements, you can customize the ```overlays``` array in this format: 
 
 ```
-{
-    SLIDE_INDEX: [{
-        type: "CUSTOM_ELEMENT_TYPE",
-        ---FIELDS REQUIRED BY THE CUSTOM ELEMENT---
-        x: 50,
-        y: 40,
-        width: 1340,
-        height: 730
-    }]
-}
+[
+    {
+        slideIndex: number,
+        type: string,
+        ---TYPE SPECIFIC FIELDS---
+        x: number,
+        y: number,
+        width: number,
+        height: number
+    }
+]
 ```
 
-The slide index (starting from 0) is the slide you want to add overlays to. It takes an array so you can add multiple custom elements to the same slide. The coordanites (x, y, width, height) use the same coordanite system as Google slides and they are completley indepent of the screen resolution or DPI. Here is an example of adding an image overlay to slide #1:
-```
-{
-    0: [{
-        type: "image",
-        url: IMAGE_URL",
-        x: 100,
-        y: 100,
-        width: 500,
-        height: 500
-    }]
-}
-```
+The ```slideIndex``` field (starting from 0) is the slide you want to add overlay to. You can add multiple custom elements to the same slide. The ```type``` field is the type of the custom element. The ```x```, ```y```, ```width``` and ```height``` fields are coordinates scaled to the slides. Here is an example of adding an image and embed overlay to slide #1:
 
-## Calendars
-The calendars are implemented using the [FullCalendar](https://fullcalendar.io/) plugin, which allows for extremly customizable and good-looking calendars. All the logic for the calendar system is handled seperatly in the ```calendar.js``` file.
-
-## Auto refresh
-The app will refresh itself automaticlly at 1:00am every day. This will ensure that your data is kept up-to-date hands-free. This feature can be disabled by setting the ```enableAutoRefresh``` boolean in ```main.js``` to ```false```.
+```
+[
+    {
+        "slideIndex": 0,
+        "type": "image",
+        "url": "IMAGE_URL", 
+        "x": 100,
+        "y": 100,
+        "width": 200,
+        "height": 200
+    },
+    {
+        "slideIndex": 0,
+        "type": "embed",
+        "url": "EMBED_URL", 
+        "x": 250,
+        "y": 100,
+        "width": 200,
+        "height": 200
+    }
+]
+```
 
 ## Running the app
-The app is just a simple static HTML website. Just clone the repo and open the ```index.html``` file in a web browser. It will grab the data from the server and when it's finished loading it will immediatly start cycling through the individual slides with the given time delay. Since the app is just a static website, you can deploy to many cloud services that are completly free such as [GitHub Pages](https://pages.github.com/). The main deployment on GitHub Pages can be accesed [here](https://math-boy11.github.io/olc-tv-slides-system/).
+This program is just a static HTML website. Just clone the repo and open the ```index.html``` file in a web browser. It will grab the data from the API, and when it's finished loading it will immediatly start cycling through the individual slides with the set time delay. You can deploy it to many cloud services that are free such as [GitHub Pages](https://pages.github.com/). The main deployment on GitHub Pages can be accesed [here](https://math-boy11.github.io/olc-tv-slides-system/).
