@@ -16,7 +16,7 @@ let slidesData = null;
 // Get the slides data from the server
 $.ajax({
     url: apiEndpoint,
-    type: "POST",
+    type: "GET",
     dataType: "json",
 }).done((data) => {
     // Assign the slides data as a global variable
