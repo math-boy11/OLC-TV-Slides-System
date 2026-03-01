@@ -2,6 +2,7 @@
 const apiEndpoint = "https://script.google.com/macros/s/AKfycbzGiG4PXzJbdYSFdbK0OyTA6L1CUH-Dyhd6Iw_rlF_B2vAiCBUu5Ip2v43gy4P1aKkC-w/exec";
 const slideChangeIntervalDuration = 10000;
 const enableAutoRefresh = true;
+const autoRefreshHour = 1;
 const overlays = [];
 
 // Global variables
@@ -131,19 +132,19 @@ if (enableAutoRefresh === true) {
     const now = new Date();
     const reloadTime = new Date();
 
-    // Set the reload time to 1:00 AM the next day
+    // Set the time to the auto refresh time of the next day
     reloadTime.setDate(now.getDate() + 1);
-    reloadTime.setHours(1, 0, 0, 0);
+    reloadTime.setHours(autoRefreshHour, 0, 0, 0);
 
     // Calculate the time difference
     const timeToReload = reloadTime - now;
-
-    console.log(`Page will reload in ${timeToReload / 1000} seconds.`);
 
     // Create the timeout to reload the page
     setTimeout(() => {
         location.reload();
     }, timeToReload);
+
+    console.log(`Page will reload in ${timeToReload / 1000} seconds.`);
 }
 
 // Function to replace quotes with the HTML code equivalent
